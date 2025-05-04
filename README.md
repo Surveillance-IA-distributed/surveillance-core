@@ -1,4 +1,4 @@
-# 🐳 Surveillance-IA-distributed 2.0
+<!-- # 🐳 Surveillance-IA-distributed 2.0
 
 ## ⚙️ Cómo correr el proyecto
 
@@ -58,4 +58,46 @@ Desarrollado por:
 - Brigham Caceres: [Brigham-CG](https://github.com/Brigham-CG)
 - Angel Loayza [angel452](https://github.com/angel452)
 - Hugo Manchego [Gabriel-Manchego](https://github.com/Gabriel-Manchego)
-- Harold Villanueva [HarryLexvb](https://github.com/HarryLexvb)
+- Harold Villanueva [HarryLexvb](https://github.com/HarryLexvb) -->
+
+
+
+# Proyecto Surveillance-IA-distributed 2.0
+
+Este proyecto es una versión mejorada de Surveillance-IA-distributed, que incluye varios microservicios para la gestión de datos e integracion con docker y kubernets. El objetivo principal es proporcionar un sistema escalable para la administracion de videos de camaras de seguridad basado en el escaneo por IA
+
+
+```bash
+    chmod +x setup.sh
+```
+
+```bash
+    ./setup.sh
+```
+
+
+## Clonación de Repositorios
+
+Para clonar todos los repositorios necesarios, sigue estos pasos:
+
+1. **Descargar el script de clonación**: Crea un archivo llamado `setup.sh` en el directorio donde deseas clonar los repositorios y copia el siguiente contenido en el archivo.
+
+```bash
+#!/bin/bash
+
+echo "Clonando todos los repositorios..."
+
+echo echo "Clonando surveillance-backend..."
+git clone git@github.com:Surveillance-IA-distributed/surveillance-backend.git
+
+echo "Clonando surveillance-frontend..."
+git clone git@github.com:Surveillance-IA-distributed/surveillance-frontend.git
+
+echo "Clonando surveillance-db..."
+git clone git@github.com:Surveillance-IA-distributed/surveillance-db.git
+
+echo "Clonando surveillance-k8..."
+git clone git@github.com:Surveillance-IA-distributed/surveillance-k8.git
+
+echo "Repositorios clonados."
+```

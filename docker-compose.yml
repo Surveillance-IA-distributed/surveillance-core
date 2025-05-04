@@ -99,7 +99,8 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./surveillance-backend:/usr/src/app
+      - ./surveillance-backend:/usr/src/app       # Comentar para producción
+      - /usr/src/app/node_modules                 # Evitar conflictos de dependencias
       # - ./postgresql:/postgresql
       - ./surveillance-backend/uploads:/usr/src/app/uploads
       - ./surveillance-backend/detections:/usr/src/app/detections

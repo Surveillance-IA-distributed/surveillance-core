@@ -1,0 +1,128 @@
+services:
+  # Servicio de base de datos PostgreSQL
+
+   # frontend:
+   #   container_name: angular-frontend
+   #   build:
+   #     context: ./surveillance-frontend
+   #     dockerfile: Dockerfile
+   #   ports:
+   #     - "4000:4000"
+   #   environment:
+   #     NODE_ENV: production
+   #   restart: always
+
+  postgres:
+    image: postgres:13
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: videodata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app_network
+
+  # Servicio para cargar datos iniciales
+  data_loader:
+    build:
+      context: ./surveillance-db
+      dockerfile: data/Dockerfile
+    container_name: data_loader
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: videodata
+    volumes:
+      - ./surveillance-db/data_cluster:/app/data_cluster
+    networks:
+      - app_network
+
+  # Servicio Redis para Celery
+  # redis:
+  #   image: redis:6
+  #   container_name: redis
+  #   ports:
+  #     - "6379:6379"
+  #   networks:
+  #     - app_network
+
+  # Servicio API
+  api:
+    build:
+      context: ./surveillance-db
+      dockerfile: api/Dockerfile
+    container_name: video_api
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      # redis:
+      #   condition: service_started
+      data_loader:
+        condition: service_completed_successfully
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: videodata
+      # REDIS_HOST: redis
+      # REDIS_PORT: 6379
+      LOG_LEVEL: INFO
+    volumes:
+      - ./surveillance-db/API_cluster:/app/API_cluster
+    networks:
+      - app_network
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  # Backend NestJS
+  backend:
+    container_name: nest-backend
+    build:
+      context: ./surveillance-backend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./surveillance-backend:/usr/src/app
+      # - ./postgresql:/postgresql
+      - ./surveillance-backend/uploads:/usr/src/app/uploads
+      - ./surveillance-backend/detections:/usr/src/app/detections
+    env_file:
+      - ./surveillance-backend/.env
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=videodata
+      - TZ=America/Lima
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app_network
+    restart: always
+
+volumes:
+  postgres_data:
+
+# Redes
+networks:
+  app_network:
+    driver: bridge

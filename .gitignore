@@ -1,0 +1,5 @@
+# Ignorar los directiorios de los submodulos o repositorios clonados
+/surveillance-backend/
+/surveillance-frontend/
+/surveillance-k8s/
+/surveillance-db/

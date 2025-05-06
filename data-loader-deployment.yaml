@@ -1,0 +1,36 @@
+# data-loader-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-loader
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: data-loader
+  template:
+    metadata:
+      labels:
+        app: data-loader
+    spec:
+      containers:
+        - name: data-loader
+          image: maestro:5000/data-loader:latest
+          env:
+            - name: DB_HOST
+              value: postgres
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_USER
+              value: postgres
+            - name: DB_PASSWORD
+              value: postgres
+            - name: DB_NAME
+              value: videodata
+          volumeMounts:
+            - name: data-cluster
+              mountPath: /app/data_cluster
+      volumes:
+        - name: data-cluster
+          hostPath:
+            path: /mnt/data/data_cluster

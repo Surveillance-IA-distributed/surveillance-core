@@ -1,0 +1,40 @@
+# api-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: video-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: video-api
+  template:
+    metadata:
+      labels:
+        app: video-api
+    spec:
+      containers:
+        - name: video-api
+          image: maestro:5000/video-api:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DB_HOST
+              value: postgres
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_USER
+              value: postgres
+            - name: DB_PASSWORD
+              value: postgres
+            - name: DB_NAME
+              value: videodata
+            - name: LOG_LEVEL
+              value: INFO
+          volumeMounts:
+            - name: api-cluster
+              mountPath: /app/API_cluster
+      volumes:
+        - name: api-cluster
+          hostPath:
+            path: /mnt/data/API_cluster

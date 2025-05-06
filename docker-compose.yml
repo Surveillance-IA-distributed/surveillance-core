@@ -1,16 +1,16 @@
 services:
   # Servicio de base de datos PostgreSQL
 
-   # frontend:
-   #   container_name: angular-frontend
-   #   build:
-   #     context: ./surveillance-frontend
-   #     dockerfile: Dockerfile
-   #   ports:
-   #     - "4000:4000"
-   #   environment:
-   #     NODE_ENV: production
-   #   restart: always
+  frontend:
+    container_name: angular-frontend
+    build:
+      context: ./surveillance-frontend
+      dockerfile: Dockerfile
+    ports:
+      - "4000:4000"
+    environment:
+      NODE_ENV: production
+    restart: always
 
   postgres:
     image: postgres:13
@@ -86,7 +86,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./surveillance-backend/src:/usr/src/app/src  # Comentar para producción
+      # - ./surveillance-backend/src:/usr/src/app/src  # Comentar para producción
       - ./surveillance-backend/uploads:/usr/src/app/uploads
       - ./surveillance-backend/detections:/usr/src/app/detections
     env_file:

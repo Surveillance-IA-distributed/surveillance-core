@@ -13,7 +13,6 @@ services:
       - app_network
     restart: always
 
-
   postgres:
     image: postgres:13
     container_name: postgres_db
@@ -88,7 +87,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./surveillance-backend/src:/usr/src/app/src  # Comentar para producción
+      # - ./surveillance-backend/src:/usr/src/app/src  # Comentar para producción
       - ./surveillance-backend/uploads:/usr/src/app/uploads
       - ./surveillance-backend/detections:/usr/src/app/detections
     env_file:

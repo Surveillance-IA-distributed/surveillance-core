@@ -72,6 +72,8 @@ services:
       DB_PASSWORD: postgres
       DB_NAME: videodata
       LOG_LEVEL: INFO
+    env_file:
+      - ./surveillance-db/.env
     volumes:
       - ./surveillance-db/API_cluster:/app/API_cluster
     networks:

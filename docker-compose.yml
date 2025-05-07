@@ -20,8 +20,8 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: videodata
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+    # volumes:
+    #   - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     healthcheck:
@@ -47,8 +47,8 @@ services:
       DB_USER: postgres
       DB_PASSWORD: postgres
       DB_NAME: videodata
-    volumes:
-      - ./surveillance-db/data_cluster:/app/data_cluster
+    # volumes:
+    #   - ./surveillance-db/data_cluster:/app/data_cluster
     networks:
       - app_network
 
@@ -74,8 +74,8 @@ services:
       LOG_LEVEL: INFO
     env_file:
       - ./surveillance-db/.env
-    volumes:
-      - ./surveillance-db/API_cluster:/app/API_cluster
+    # volumes:
+    #   - ./surveillance-db/API_cluster:/app/API_cluster
     networks:
       - app_network
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
@@ -88,10 +88,10 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
-    volumes:
-      # - ./surveillance-backend/src:/usr/src/app/src  # Comentar para producción
-      - ./surveillance-backend/uploads:/usr/src/app/uploads
-      - ./surveillance-backend/detections:/usr/src/app/detections
+    # volumes:
+    #   - ./surveillance-backend/src:/usr/src/app/src                   # Comentar para producción
+    #   - ./surveillance-backend/uploads:/usr/src/app/uploads
+    #   - ./surveillance-backend/detections:/usr/src/app/detections
     env_file:
       - ./surveillance-backend/.env
     environment:
@@ -108,8 +108,8 @@ services:
       - app_network
     restart: always
 
-volumes:
-  postgres_data:
+# volumes:
+#   postgres_data:
 
 # Redes
 networks:

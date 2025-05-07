@@ -67,3 +67,5 @@ curl http://maestro:5000/v2/data-loader/tags/list
 
 
 sudo docker rmi -f $(sudo docker images -q)
+
+kubectl exec -it $(kubectl get pod -l app=angular-frontend -o jsonpath="{.items[0].metadata.name}") -- sh

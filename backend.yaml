@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-nest
+  labels:
+    app: backend-nest
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend-nest
+  template:
+    metadata:
+      labels:
+        app: backend-nest
+    spec:
+      containers:
+        - name: backend
+          image: maestro:5000/backend:latest  # Asegúrate de usar la imagen correcta
+          ports:
+            - containerPort: 3000
+          volumeMounts:
+            - name: uploads
+              mountPath: /usr/src/app/uploads
+            - name: detections
+              mountPath: /usr/src/app/detections
+            - name: env-file
+              mountPath: /usr/src/app/.env
+              subPath: .env
+          env:
+            - name: DB_HOST
+              value: "postgres"
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_USER
+              value: "postgres"
+            - name: DB_PASSWORD
+              value: "postgres"
+            - name: DB_NAME
+              value: "videodata"
+            - name: TZ
+              value: "America/Lima"
+      volumes:
+        - name: uploads
+          emptyDir: {}
+        - name: detections
+          emptyDir: {}
+        - name: env-file
+          configMap:
+            name: backend-config
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-nest
+spec:
+  selector:
+    app: backend-nest
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+  type: ClusterIP

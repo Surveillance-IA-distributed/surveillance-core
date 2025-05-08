@@ -61,11 +61,22 @@ curl http://maestro:5000/v2/frontend/tags/list
 curl http://maestro:5000/v2/backend/tags/list
 curl http://maestro:5000/v2/video-api/tags/list
 curl http://maestro:5000/v2/data-loader/tags/list
+kubectl get pods -o wide
 
 
 
+kubectl taint nodes name node-role.kubernetes.io/control-plane:NoSchedule-
 
+
+sudo docker system prune -a --volumes
+
+sudo docker stop $(sudo docker ps -q)
+sudo docker rm $(sudo docker ps -aq)
+
+sudo docker rmi -f $(sudo docker images 'maestro:5000/*' -q)
 
 sudo docker rmi -f $(sudo docker images -q)
 
 kubectl exec -it $(kubectl get pod -l app=angular-frontend -o jsonpath="{.items[0].metadata.name}") -- sh
+
+

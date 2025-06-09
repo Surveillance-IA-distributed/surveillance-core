@@ -3,3 +3,9 @@
 /surveillance-frontend/
 /surveillance-k8/
 /surveillance-db/
+
+/client-gateway/
+/video-data-ms/
+
+.env
+node_modules/

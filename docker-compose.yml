@@ -1,117 +1,190 @@
 services:
-  # Servicio de base de datos PostgreSQL
-  frontend:
-    container_name: angular-frontend
-    build:
-      context: ./surveillance-frontend
-      dockerfile: Dockerfile
+  # Servicio NATS para mensajería
+  nats-server:
+    image: nats:latest
     ports:
-      - "4000:4000"
-    environment:
-      NODE_ENV: production
-    networks:
-      - app_network
-    restart: always
+      - "8222:8222"
 
-  postgres:
-    image: postgres:13
-    container_name: postgres_db
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: videodata
-    # volumes:
-    #   - postgres_data:/var/lib/postgresql/data
+  # Gateway para el cliente (REST API)
+  client-gateway:
+    build: ./client-gateway
     ports:
-      - "5432:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    networks:
-      - app_network
-
-  # Servicio para cargar datos iniciales
-  data_loader:
-    build:
-      context: ./surveillance-db
-      dockerfile: data/Dockerfile
-    container_name: data_loader
-    depends_on:
-      postgres:
-        condition: service_healthy
+      - "${CLIENT_GATEWAY_PORT}:3000"
+    volumes:
+      - ./client-gateway/src:/usr/src/app/src
+    command: npm run start:dev
     environment:
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_USER: postgres
-      DB_PASSWORD: postgres
-      DB_NAME: videodata
-    # volumes:
-    #   - ./surveillance-db/data_cluster:/app/data_cluster
-    networks:
-      - app_network
+      - PORT=3000
+      - NATS_SERVERS=nats://nats-server:4222
 
-  # Servicio API
-  api:
-    build:
-      context: ./surveillance-db
-      dockerfile: api/Dockerfile
-    container_name: video_api
-    ports:
-      - "8000:8000"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      data_loader:
-        condition: service_completed_successfully
+  ########################## MICROSERVICIOS ##########################
+  # ---> camera-streamer-ms
+  # camera-streamer-ms:
+  #   build: ./camera-streamer-ms
+
+  # ---> object-detector-api
+  # object-detector-api:
+  #   build: ./object-detector-api
+  #   volumes:
+  #     - ./object-detector-api/src:/usr/src/app/src
+  #   command: npm run start:dev
+  #   environment:
+  #     - PORT=3001
+  #     - NATS_SERVERS=nats://nats-server:4222
+
+  # ---> video-data-ms
+  video-data-ms:
+    build: ./video-data-ms
+    volumes:
+      - ./video-data-ms/src:/usr/src/app/src
+    command: npm run start:dev
     environment:
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_USER: postgres
-      DB_PASSWORD: postgres
-      DB_NAME: videodata
-      LOG_LEVEL: INFO
-    env_file:
-      - ./surveillance-db/.env
-    # volumes:
-    #   - ./surveillance-db/API_cluster:/app/API_cluster
-    networks:
-      - app_network
-    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+      - PORT=3002
+      - NATS_SERVERS=nats://nats-server:4222
 
-  # Backend NestJS
-  backend:
-    container_name: nest-backend
-    build:
-      context: ./surveillance-backend
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
-    # volumes:
-    #   - ./surveillance-backend/src:/usr/src/app/src                   # Comentar para producción
-    #   - ./surveillance-backend/uploads:/usr/src/app/uploads
-    #   - ./surveillance-backend/detections:/usr/src/app/detections
-    env_file:
-      - ./surveillance-backend/.env
-    environment:
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-      - DB_NAME=videodata
-      - TZ=America/Lima
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - app_network
-    restart: always
+  # ---> event-processor-ms
+  # event-processor-ms:
+  #   build: ./event-processor-ms
+  #   volumes:
+  #     - ./event-processor-ms/src:/usr/src/app/src
+  #   command: npm run start:dev
+  #   environment:
+  #     - PORT=3003
+  #     - NATS_SERVERS=nats://nats-server:4222  
 
-# volumes:
-#   postgres_data:
+  # ---> user-management-ms
+  # user-management-ms:
+  #   build: ./user-management-ms
+  #   volumes:
+  #     - ./user-management-ms/src:/usr/src/app/src
+  #   command: npm run start:dev
+  #   environment:
+  #     - PORT=3004
+  #     - NATS_SERVERS=nats://nats-server:4222
+  
 
-# Redes
-networks:
-  app_network:
-    driver: bridge
+  # ---> notificacion-service-ms
+  # notificacion-service-ms:
+  #   build: ./notificacion-service-ms
+  #   volumes:
+  #     - ./notificacion-service-ms/src:/usr/src/app/src
+  #   command: npm run start:dev
+  #   environment:
+  #     - PORT=3005
+  #     - NATS_SERVERS=nats://nats-server:4222
+
+
+############################## ANTIGUOS CONTENEDORES ##############################
+#   frontend:
+#     container_name: angular-frontend
+#     build:
+#       context: ./surveillance-frontend
+#       dockerfile: Dockerfile
+#     ports:
+#       - "4000:4000"
+#     environment:
+#       NODE_ENV: production
+#     networks:
+#       - app_network
+#     restart: always
+
+#   # Servicio de base de datos PostgreSQL
+#   postgres:
+#     image: postgres:13
+#     container_name: postgres_db
+#     environment:
+#       POSTGRES_USER: postgres
+#       POSTGRES_PASSWORD: postgres
+#       POSTGRES_DB: videodata
+#     # volumes:
+#     #   - postgres_data:/var/lib/postgresql/data
+#     ports:
+#       - "5432:5432"
+#     healthcheck:
+#       test: ["CMD-SHELL", "pg_isready -U postgres"]
+#       interval: 5s
+#       timeout: 5s
+#       retries: 5
+#     networks:
+#       - app_network
+
+#   # Servicio para cargar datos iniciales
+#   data_loader:
+#     build:
+#       context: ./surveillance-db
+#       dockerfile: data/Dockerfile
+#     container_name: data_loader
+#     depends_on:
+#       postgres:
+#         condition: service_healthy
+#     environment:
+#       DB_HOST: postgres
+#       DB_PORT: 5432
+#       DB_USER: postgres
+#       DB_PASSWORD: postgres
+#       DB_NAME: videodata
+#     # volumes:
+#     #   - ./surveillance-db/data_cluster:/app/data_cluster
+#     networks:
+#       - app_network
+
+#   # Servicio API
+#   api:
+#     build:
+#       context: ./surveillance-db
+#       dockerfile: api/Dockerfile
+#     container_name: video_api
+#     ports:
+#       - "8000:8000"
+#     depends_on:
+#       postgres:
+#         condition: service_healthy
+#       data_loader:
+#         condition: service_completed_successfully
+#     environment:
+#       DB_HOST: postgres
+#       DB_PORT: 5432
+#       DB_USER: postgres
+#       DB_PASSWORD: postgres
+#       DB_NAME: videodata
+#       LOG_LEVEL: INFO
+#     env_file:
+#       - ./surveillance-db/.env
+#     # volumes:
+#     #   - ./surveillance-db/API_cluster:/app/API_cluster
+#     networks:
+#       - app_network
+#     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+#   # Backend NestJS
+#   backend:
+#     container_name: nest-backend
+#     build:
+#       context: ./surveillance-backend
+#       dockerfile: Dockerfile
+#     ports:
+#       - "3000:3000"
+#     # volumes:
+#     #   - ./surveillance-backend/src:/usr/src/app/src                   # Comentar para producción
+#     #   - ./surveillance-backend/uploads:/usr/src/app/uploads
+#     #   - ./surveillance-backend/detections:/usr/src/app/detections
+#     env_file:
+#       - ./surveillance-backend/.env
+#     environment:
+#       - DB_HOST=postgres
+#       - DB_PORT=5432
+#       - DB_USER=postgres
+#       - DB_PASSWORD=postgres
+#       - DB_NAME=videodata
+#       - TZ=America/Lima
+#     depends_on:
+#       postgres:
+#         condition: service_healthy
+#     networks:
+#       - app_network
+#     restart: always
+
+# # Redes
+# networks:
+#   app_network:
+#     driver: bridge

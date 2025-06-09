@@ -1,0 +1,25 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: data-loader
+spec:
+  template:
+    metadata:
+      labels:
+        app: data-loader
+    spec:
+      containers:
+        - name: data-loader
+          image: maestro:5000/data-loader:latest  # Imagen con los datos incluidos
+          env:
+            - name: DB_HOST
+              value: postgres  # Nombre del servicio de la base de datos
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_USER
+              value: "postgres"
+            - name: DB_PASSWORD
+              value: "postgres"
+            - name: DB_NAME
+              value: "videodata"
+      restartPolicy: Never  # No reiniciar el Job una vez completado

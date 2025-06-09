@@ -1,4 +1,3 @@
-# api-deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -16,25 +15,22 @@ spec:
       containers:
         - name: video-api
           image: maestro:5000/video-api:latest
+          command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
           ports:
             - containerPort: 8000
           env:
-            - name: DB_HOST
-              value: postgres
             - name: DB_PORT
               value: "5432"
-            - name: DB_USER
-              value: postgres
-            - name: DB_PASSWORD
-              value: postgres
-            - name: DB_NAME
-              value: videodata
             - name: LOG_LEVEL
-              value: INFO
+              value: "INFO"
           volumeMounts:
-            - name: api-cluster
-              mountPath: /app/API_cluster
+            - name: env-file
+              mountPath: /app/.env
+              subPath: .env
       volumes:
-        - name: api-cluster
-          hostPath:
-            path: /mnt/data/API_cluster
+        - name: env-file
+          configMap:
+            name: video-api-env
+            items:
+              - key: .env
+                path: .env

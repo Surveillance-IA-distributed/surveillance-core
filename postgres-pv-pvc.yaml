@@ -1,18 +1,19 @@
-# postgres-pv-pvc.yaml
+---
 apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: postgres-pv
 spec:
   capacity:
-    storage: 5Gi
+    storage: 5Gi  # Ajusta este valor según el tamaño que necesites
   volumeMode: Filesystem
   accessModes:
-    - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Retain
-  storageClassName: manual
+    - ReadWriteOnce  # El volumen puede ser montado en modo lectura/escritura por un solo nodo
+  persistentVolumeReclaimPolicy: Retain  # Políticas del volumen después de que el pod termine
+  storageClassName: manual  # Esto debe coincidir con el PVC si lo especificas
   hostPath:
-    path: "/mnt/data/postgres"
+    path: "/mnt/data/postgres"  # Ruta en el nodo (asegúrate de que esta carpeta exista en tu nodo)
+
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -24,4 +25,4 @@ spec:
   resources:
     requests:
       storage: 5Gi
-  storageClassName: manual
+  storageClassName: manual  # Esto debe coincidir con el PV

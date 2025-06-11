@@ -27,20 +27,38 @@ services:
   #   build: ./object-detector-api
   #   volumes:
   #     - ./object-detector-api/src:/usr/src/app/src
-  #   command: npm run start:dev
+  #   command: 
   #   environment:
   #     - PORT=3001
   #     - NATS_SERVERS=nats://nats-server:4222
 
   # ---> video-data-ms
   video-data-ms:
+    depends_on:
+      - videos-db
     build: ./video-data-ms
     volumes:
       - ./video-data-ms/src:/usr/src/app/src
+      - ./video-data-ms/uploads:/usr/src/app/uploads
     command: npm run start:dev
     environment:
       - PORT=3002
+      - DATABASE_URL=postgresql://postgres:123456@videos-db:5432/videosdb?schema=public
       - NATS_SERVERS=nats://nats-server:4222
+
+  # ----> videos-db
+  videos-db:
+    container_name: videos_database
+    image: postgres:16.2
+    restart: always
+    volumes:
+      - ./video-data-ms/postgres:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=123456
+      - POSTGRES_DB=videosdb
 
   # ---> event-processor-ms
   # event-processor-ms:

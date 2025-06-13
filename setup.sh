@@ -2,9 +2,6 @@
 
 echo "Clonando todos los repositorios..."
 
-echo "Clonando surveillance-frontend..."
-git clone git@github.com:Surveillance-IA-distributed/surveillance-frontend.git
-
 echo "Clonando client-gateway..."
 git clone git@github.com:Surveillance-IA-distributed/client-gateway.git
 

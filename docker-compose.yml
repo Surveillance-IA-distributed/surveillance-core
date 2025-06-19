@@ -23,14 +23,15 @@ services:
   #   build: ./camera-streamer-ms
 
   # ---> object-detector-api
-  # object-detector-api:
-  #   build: ./object-detector-api
-  #   volumes:
-  #     - ./object-detector-api/src:/usr/src/app/src
-  #   command: 
-  #   environment:
-  #     - PORT=3001
-  #     - NATS_SERVERS=nats://nats-server:4222
+  object-detector-api:
+    build: ./object-detector-api
+    depends_on:
+      - nats-server
+    env_file:
+      - ./object-detector-api/.env
+    restart: unless-stopped
+    volumes:
+      - ./object-detector-api/yolomodel:/app/yolomodel
 
   # ---> video-data-ms
   video-data-ms:

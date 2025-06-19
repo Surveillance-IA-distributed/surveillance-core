@@ -6,6 +6,7 @@
 
 /client-gateway/
 /video-data-ms/
+/object-detector-api/
 
 .env
 node_modules/

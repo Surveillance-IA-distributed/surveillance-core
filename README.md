@@ -99,3 +99,26 @@ git clone git@github.com:Surveillance-IA-distributed/object-detector-api.git
 echo "Repositorios clonados."
 
 ```
+
+## Correr el Proyecto
+> Para correr el proyecto, asegúrate de tener Docker y Docker Compose instalados en tu máquina. 
+
+En la ruta actual del proyecto (a la altura del archivo `docker-compose.yml`), ejecuta los siguientes comandos:
+
+```bash
+docker compose build
+docker compose up -d
+```
+
+## Configuración de variable de entorno
+Copia el archivo .env.template a .env
+
+```bash
+# Contenido del archivo .env.template
+CLIENT_GATEWAY_PORT=3000
+```
+
+> Dirigete a las respectivas carpetas de los microservicios y sigue las instrucciones de configuración de cada uno: 
+> - [client-gateway](https://github.com/Surveillance-IA-distributed/client-gateway)
+> - [video-data-ms](https://github.com/Surveillance-IA-distributed/video-data-ms)
+> - [object-detector-api](https://github.com/Surveillance-IA-distributed/object-detector-api)
